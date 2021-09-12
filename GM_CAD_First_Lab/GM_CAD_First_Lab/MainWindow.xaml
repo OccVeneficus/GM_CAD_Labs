@@ -1,0 +1,127 @@
+﻿<Window
+    x:Class="GM_CAD_First_Lab.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:GM_CAD_First_Lab"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    Width="800"
+    Height="450"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <Image
+            x:Key="RotateLeftImage"
+            Width="18"
+            Height="18"
+            RenderOptions.BitmapScalingMode="Fant"
+            Source="Resources/rotate left.png"/>
+        <Image
+            x:Key="RotateRightImage"
+            Width="18"
+            Height="18"
+            RenderOptions.BitmapScalingMode="Fant"
+            Source="Resources/rotate right.png"/>
+        <Image
+            x:Key="HorizontalMirrorImage"
+            Width="18"
+            Height="18"
+            RenderOptions.BitmapScalingMode="Fant"
+            Source="Resources/horizontal mirror.png"/>
+        <Image
+            x:Key="VerticalMirrorImage"
+            Width="18"
+            Height="18"
+            RenderOptions.BitmapScalingMode="Fant"
+            Source="Resources/vertical mirror.png"/>
+        <Image
+            x:Key="PlusImage"
+            Width="18"
+            Height="18"
+            RenderOptions.BitmapScalingMode="Fant"
+            Source="Resources/plus.png"/>
+        <Image
+            x:Key="MinusImage"
+            Width="18"
+            Height="18"
+            RenderOptions.BitmapScalingMode="Fant"
+            Source="Resources/minus.png"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Background="White">
+            <MenuItem Header="File">
+                <MenuItem Click="MenuItem_Click" Header="Open"/>
+                <MenuItem Header="Save As..."/>
+            </MenuItem>
+        </Menu>
+        <StackPanel
+            Grid.Row="1"
+            Grid.Column="0"
+            Margin="0 5 0 0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Orientation="Vertical">
+            <Button
+                Margin="2"
+                x:Name="RotateLeftButton"
+                Click="RotateLeftButton_Click"
+                Content="{StaticResource RotateLeftImage}"
+                Style="{StaticResource FlatButton}">
+            </Button>
+            <Button
+                Margin="2"
+                x:Name="RotateRightButton"
+                Click="RotateRightButton_Click"
+                Content="{StaticResource RotateRightImage}"
+                Style="{StaticResource FlatButton}">
+            </Button>
+            <Button
+                Margin="2"
+                x:Name="VerticalMirrorButton"
+                Click="VerticalMirrorButton_Click"
+                Content="{StaticResource VerticalMirrorImage}"
+                Style="{StaticResource FlatButton}">
+            </Button>
+            <Button
+                Margin="2"
+                x:Name="HorizontalMirrorButton"
+                Click="HorizontalMirrorButton_Click"
+                Content="{StaticResource HorizontalMirrorImage}"
+                Style="{StaticResource FlatButton}">
+            </Button>
+            <Button
+                Margin="2"
+                x:Name="IncreaceSacleButton"
+                Click="IncreaceSacleButton_Click"
+                Content="{StaticResource PlusImage}"
+                Style="{StaticResource FlatButton}">
+            </Button>
+            <Button
+                Margin="2"
+                x:Name="DecreaseScaleButton"
+                Click="DecreaseScaleButton_Click"
+                Content="{StaticResource MinusImage}"
+                Style="{StaticResource FlatButton}">
+            </Button>
+        </StackPanel>
+        <ScrollViewer
+            Grid.Row="1"
+            Grid.Column="1"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Auto">
+            <Image x:Name="UserImage" Stretch="None"/>
+        </ScrollViewer>
+    </Grid>
+</Window>
