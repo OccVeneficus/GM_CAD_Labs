@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -41,11 +42,6 @@ namespace GM_CAD_First_Lab
         /// </summary>
         private const double ROTATION_DEGREES_OFFSET = 90.0;
 
-        /// <summary>
-        /// Оригинальное загруженное изображение
-        /// </summary>
-        private BitmapImage _originalImage;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -56,7 +52,12 @@ namespace GM_CAD_First_Lab
             var fileDialog = new OpenFileDialog {Filter= "Image Files|*.bmp;*.jpeg;*.png", Title="Load image"};
             if ((bool)fileDialog.ShowDialog())
             {
-                UserImage.Source = new BitmapImage(new Uri(fileDialog.FileName));
+                var image = new TransformedBitmap();
+                var bitmap = new BitmapImage(new Uri(fileDialog.FileName));
+                image.BeginInit();
+                image.Source = bitmap;
+                image.EndInit();
+                UserImage.Source = image;
             }
         }
 
@@ -117,6 +118,70 @@ namespace GM_CAD_First_Lab
             transformGroup.Children.Add(new RotateTransform(_currentAngle));
             transformGroup.Children.Add(new ScaleTransform { ScaleX = _horizontalFlipOffset * _currentScale, ScaleY = _verticalFlipOffset * _currentScale });
             UserImage.RenderTransform = transformGroup;
+        }
+
+        /// <summary>
+        /// Обновляет изображение для сохранения
+        /// </summary>
+        /// <returns>Измененный битмап для сохранения</returns>
+        private TransformedBitmap UpdateImageOnSave()
+        {
+            TransformedBitmap transformedBitmap = new TransformedBitmap();
+            transformedBitmap.BeginInit();
+            transformedBitmap.Source = UserImage.Source as TransformedBitmap;
+            var transformGroup = new TransformGroup();
+            transformGroup.Children.Add(new RotateTransform(_currentAngle));
+            transformGroup.Children.Add(new ScaleTransform { ScaleX = _horizontalFlipOffset * _currentScale, ScaleY = _verticalFlipOffset * _currentScale });
+            transformedBitmap.Transform = transformGroup;
+            transformedBitmap.EndInit();
+            return transformedBitmap;
+        }
+
+        private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var fileDialog = new SaveFileDialog { Title = "Save Image" , DefaultExt=".jpeg", Filter = "Image Files|*.bmp;*.jpeg;*.png" };
+            if ((bool)fileDialog.ShowDialog())
+            {
+                var extenson = Path.GetExtension(fileDialog.FileName);
+                switch (extenson)
+                {
+                    case ".png":
+                        {
+                            var encoder = new PngBitmapEncoder();
+                            encoder.Frames.Add(BitmapFrame.Create(UpdateImageOnSave()));
+                            using (var stream = fileDialog.OpenFile())
+                            {
+                                encoder.Save(stream);
+                            }
+                            break;
+                        }
+                    case ".bmp":
+                        {
+                            var encoder = new BmpBitmapEncoder();
+                            encoder.Frames.Add(BitmapFrame.Create(UpdateImageOnSave()));
+                            using (var stream = fileDialog.OpenFile())
+                            {
+                                encoder.Save(stream);
+                            }
+                            break;
+                        }
+                    case ".jpeg":
+                        {
+                            var encoder = new JpegBitmapEncoder();
+                            encoder.Frames.Add(BitmapFrame.Create(UpdateImageOnSave()));
+                            using (var stream = fileDialog.OpenFile())
+                            {
+                                encoder.Save(stream);
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            MessageBox.Show("Wrong file extension, please try again", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            break;
+                        }
+                }
+            }
         }
     }
 }
