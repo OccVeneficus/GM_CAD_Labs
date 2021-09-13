@@ -62,8 +62,14 @@
             Grid.ColumnSpan="2"
             Background="White">
             <MenuItem Header="File">
-                <MenuItem x:Name="OpenMenuItem" Click="MenuItem_Click" Header="Open"/>
-                <MenuItem x:Name="SaveMenuItem" Click="SaveMenuItem_Click" Header="Save As..."/>
+                <MenuItem
+                    x:Name="OpenMenuItem"
+                    Click="MenuItem_Click"
+                    Header="Open"/>
+                <MenuItem
+                    x:Name="SaveMenuItem"
+                    Click="SaveMenuItem_Click"
+                    Header="Save As..."/>
             </MenuItem>
         </Menu>
         <StackPanel
@@ -74,43 +80,43 @@
             VerticalAlignment="Center"
             Orientation="Vertical">
             <Button
-                Margin="2"
                 x:Name="RotateLeftButton"
+                Margin="2"
                 Click="RotateLeftButton_Click"
                 Content="{StaticResource RotateLeftImage}"
                 Style="{StaticResource FlatButton}">
             </Button>
             <Button
-                Margin="2"
                 x:Name="RotateRightButton"
+                Margin="2"
                 Click="RotateRightButton_Click"
                 Content="{StaticResource RotateRightImage}"
                 Style="{StaticResource FlatButton}">
             </Button>
             <Button
-                Margin="2"
                 x:Name="VerticalMirrorButton"
+                Margin="2"
                 Click="VerticalMirrorButton_Click"
                 Content="{StaticResource VerticalMirrorImage}"
                 Style="{StaticResource FlatButton}">
             </Button>
             <Button
-                Margin="2"
                 x:Name="HorizontalMirrorButton"
+                Margin="2"
                 Click="HorizontalMirrorButton_Click"
                 Content="{StaticResource HorizontalMirrorImage}"
                 Style="{StaticResource FlatButton}">
             </Button>
             <Button
-                Margin="2"
                 x:Name="IncreaceSacleButton"
+                Margin="2"
                 Click="IncreaceSacleButton_Click"
                 Content="{StaticResource PlusImage}"
                 Style="{StaticResource FlatButton}">
             </Button>
             <Button
-                Margin="2"
                 x:Name="DecreaseScaleButton"
+                Margin="2"
                 Click="DecreaseScaleButton_Click"
                 Content="{StaticResource MinusImage}"
                 Style="{StaticResource FlatButton}">

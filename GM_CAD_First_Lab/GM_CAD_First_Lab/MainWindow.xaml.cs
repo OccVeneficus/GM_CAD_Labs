@@ -117,7 +117,7 @@ namespace GM_CAD_First_Lab
             var transformGroup = new TransformGroup();
             transformGroup.Children.Add(new RotateTransform(_currentAngle));
             transformGroup.Children.Add(new ScaleTransform { ScaleX = _horizontalFlipOffset * _currentScale, ScaleY = _verticalFlipOffset * _currentScale });
-            UserImage.RenderTransform = transformGroup;
+            UserImage.LayoutTransform = transformGroup;
         }
 
         /// <summary>
@@ -142,44 +142,35 @@ namespace GM_CAD_First_Lab
             var fileDialog = new SaveFileDialog { Title = "Save Image" , DefaultExt=".jpeg", Filter = "Image Files|*.bmp;*.jpeg;*.png" };
             if ((bool)fileDialog.ShowDialog())
             {
+                BitmapEncoder encoder;
                 var extenson = Path.GetExtension(fileDialog.FileName);
                 switch (extenson)
                 {
                     case ".png":
                         {
-                            var encoder = new PngBitmapEncoder();
-                            encoder.Frames.Add(BitmapFrame.Create(UpdateImageOnSave()));
-                            using (var stream = fileDialog.OpenFile())
-                            {
-                                encoder.Save(stream);
-                            }
+                            encoder = new PngBitmapEncoder();
                             break;
                         }
                     case ".bmp":
                         {
-                            var encoder = new BmpBitmapEncoder();
-                            encoder.Frames.Add(BitmapFrame.Create(UpdateImageOnSave()));
-                            using (var stream = fileDialog.OpenFile())
-                            {
-                                encoder.Save(stream);
-                            }
+                            encoder = new BmpBitmapEncoder();
                             break;
                         }
                     case ".jpeg":
                         {
-                            var encoder = new JpegBitmapEncoder();
-                            encoder.Frames.Add(BitmapFrame.Create(UpdateImageOnSave()));
-                            using (var stream = fileDialog.OpenFile())
-                            {
-                                encoder.Save(stream);
-                            }
+                            encoder = new JpegBitmapEncoder();
                             break;
                         }
                     default:
                         {
                             MessageBox.Show("Wrong file extension, please try again", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            break;
+                            return;
                         }
+                }
+                encoder.Frames.Add(BitmapFrame.Create(UpdateImageOnSave()));
+                using (var stream = fileDialog.OpenFile())
+                {
+                    encoder.Save(stream);
                 }
             }
         }
