@@ -1,9 +1,15 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
+using Point = System.Windows.Point;
 
 namespace GM_CAD_First_Lab
 {
@@ -49,7 +55,7 @@ namespace GM_CAD_First_Lab
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var fileDialog = new OpenFileDialog {Filter= "Image Files|*.bmp;*.jpeg;*.png", Title="Load image"};
+            var fileDialog = new OpenFileDialog {Filter= "Image Files|*.bmp;*.jpeg;*.jpg;*.png", Title="Load image"};
             if ((bool)fileDialog.ShowDialog())
             {
                 var image = new TransformedBitmap();
@@ -139,7 +145,7 @@ namespace GM_CAD_First_Lab
 
         private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var fileDialog = new SaveFileDialog { Title = "Save Image" , DefaultExt=".jpeg", Filter = "Image Files|*.bmp;*.jpeg;*.png" };
+            var fileDialog = new SaveFileDialog { Title = "Save Image" , DefaultExt=".jpg", Filter = "Image Files|*.bmp;*.jpg;*.png;*.jpeg" };
             if ((bool)fileDialog.ShowDialog())
             {
                 BitmapEncoder encoder;
@@ -154,6 +160,11 @@ namespace GM_CAD_First_Lab
                     case ".bmp":
                         {
                             encoder = new BmpBitmapEncoder();
+                            break;
+                        }
+                    case ".jpg":
+                        {
+                            encoder = new JpegBitmapEncoder();
                             break;
                         }
                     case ".jpeg":
@@ -177,18 +188,88 @@ namespace GM_CAD_First_Lab
 
         private void InvertColorMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            BitmapImage a = new BitmapImage();
-            var b = UserImage.Source as BitmapSource;
-            UserImage.Source = Invert(b);
+            try
+            {
+                UserImage.Source = Invert(UserImage.Source as BitmapSource);
+            }
+            catch (NullReferenceException)
+            {
+                MessageBox.Show("Image isn't loaded",
+                    "Color inversion error.",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
-        public static BitmapSource Invert(BitmapSource source)
+        private void SharpnessMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var bitmap = BitmapImage2Bitmap(UserImage.Source as BitmapSource);
+            var bluredImage = Contrast(bitmap);
+            UserImage.Source = bluredImage;//Sharp(UserImage.Source as BitmapSource, bluredImage);
+        }
+
+        private void ContrastMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var bitmap = BitmapImage2Bitmap(UserImage.Source as BitmapSource);
+            UserImage.Source = Bitmap2BitmapImage( Extensions.Contrast(bitmap,100));
+        }
+
+        /// <summary>
+        /// Инверсия цветов картинки
+        /// </summary>
+        /// <param name="source">Картинка</param>
+        /// <returns>Картинка с инвертированными цветами</returns>
+        public BitmapSource Sharp(BitmapSource source, BitmapSource bluredImage)
         {
             // Calculate stride of source
             int stride = (source.PixelWidth * source.Format.BitsPerPixel + 7) / 8;
 
             // Create data array to hold source pixel data
             int length = stride * source.PixelHeight;
+            byte[] newPixels = new byte[length];
+            byte[] oldPixels = new byte[length];
+
+            source.CopyPixels(oldPixels, stride, 0);
+
+            // Copy source image pixels to the data array
+            bluredImage.CopyPixels(newPixels, stride, 0);
+
+            // Change this loop for other formats
+            for (int i = 0; i < length; i += 4)
+            {
+                for(var j = i; j< i+3; j++)
+                {
+                    var difference = oldPixels[j] - newPixels[j];
+                    difference *= 3;
+                    if (newPixels[j] + difference < 0)
+                    {
+                        newPixels[j] = 0;
+                    }
+                    else if (newPixels[j] + difference > 255)
+                    {
+                        newPixels[j] = 255;
+                    }
+                    else
+                    {
+                        newPixels[j] = (byte)(newPixels[j] + difference);
+                    }
+                }
+            }
+            
+            // Create a new BitmapSource from the inverted pixel buffer
+            return BitmapSource.Create(
+                source.PixelWidth, source.PixelHeight,
+                source.DpiX, source.DpiY, source.Format,
+                null, newPixels, stride);
+        }
+
+        public static BitmapSource Invert(BitmapSource source)
+        {
+            // Calculate stride of source
+            int stride = (source.PixelWidth * source.Format.BitsPerPixel + 7) / 8;
+            // Create data array to hold source pixel data
+            int length = stride * source.PixelHeight;
+          
             byte[] data = new byte[length];
 
             // Copy source image pixels to the data array
@@ -209,5 +290,79 @@ namespace GM_CAD_First_Lab
                 source.DpiX, source.DpiY, source.Format,
                 null, data, stride);
         }
+
+        public BitmapSource Contrast(Bitmap source)
+        {
+            //create a blank bitmap the same size as original
+            Bitmap newBitmap = new Bitmap(source.Width, source.Height);
+
+            //get a graphics object from the new image
+            Graphics g = Graphics.FromImage(newBitmap);
+
+            // create the negative color matrix
+            ColorMatrix colorMatrix = new ColorMatrix(new float[][]
+            {
+                new float[] { 2.0f, 0, 0, 0, 0},
+                new float[] { 0, 2.0f, 0, 0, 0},
+                new float[] { 0, 0, 2.0f, 0, 0},
+                new float[] { 0, 0, 0, 1.0f, 0},
+                new float[] { 0, 0, 0, 0, 1},
+            });
+
+            // create some image attributes
+            ImageAttributes attributes = new ImageAttributes();
+
+            attributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            attributes.SetGamma(1.0f, ColorAdjustType.Bitmap);
+
+            g.DrawImage(source, new Rectangle(0, 0, source.Width, source.Height),
+                        0, 0, source.Width, source.Height, GraphicsUnit.Pixel, attributes);
+
+            //dispose the Graphics object
+            g.Dispose();
+
+            return Bitmap2BitmapImage(newBitmap);
+        }
+
+        private Bitmap BitmapImage2Bitmap(BitmapSource bitmapImage)
+        {
+            // BitmapImage bitmapImage = new BitmapImage(new Uri("../Images/test.png", UriKind.Relative));
+
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                enc.Save(outStream);
+                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+
+                return new Bitmap(bitmap);
+            }
+        }
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+
+        private BitmapSource Bitmap2BitmapImage(Bitmap bitmap)
+        {
+            IntPtr hBitmap = bitmap.GetHbitmap();
+            BitmapSource retval;
+
+            try
+            {
+                retval = (BitmapSource)Imaging.CreateBitmapSourceFromHBitmap(
+                             hBitmap,
+                             IntPtr.Zero,
+                             Int32Rect.Empty,
+                             BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally
+            {
+                DeleteObject(hBitmap);
+            }
+
+            return retval;
+        }
+
+
     }
 }

@@ -75,6 +75,12 @@
                 <MenuItem Header="Ivert Colors"
                           x:Name="InvertColorMenuItem"
                           Click="InvertColorMenuItem_OnClick"/>
+                <MenuItem Header="Sharpness"
+                          x:Name="SharpnessMenuItem"
+                          Click="SharpnessMenuItem_Click"/>
+                <MenuItem Header="Contrast"
+                          x:Name="ContrastMenuItem"
+                          Click="ContrastMenuItem_Click"/>
             </MenuItem>
         </Menu>
         <StackPanel
