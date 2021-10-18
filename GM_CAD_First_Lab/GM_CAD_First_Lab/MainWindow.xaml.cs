@@ -128,7 +128,7 @@ namespace GM_CAD_First_Lab
         {
             TransformedBitmap transformedBitmap = new TransformedBitmap();
             transformedBitmap.BeginInit();
-            transformedBitmap.Source = UserImage.Source as TransformedBitmap;
+            transformedBitmap.Source = UserImage.Source as BitmapSource;
             var transformGroup = new TransformGroup();
             transformGroup.Children.Add(new RotateTransform(_currentAngle));
             transformGroup.Children.Add(new ScaleTransform { ScaleX = _horizontalFlipOffset * _currentScale, ScaleY = _verticalFlipOffset * _currentScale });
@@ -177,7 +177,37 @@ namespace GM_CAD_First_Lab
 
         private void InvertColorMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            BitmapImage a = new BitmapImage();
+            var b = UserImage.Source as BitmapSource;
+            UserImage.Source = Invert(b);
+        }
+
+        public static BitmapSource Invert(BitmapSource source)
+        {
+            // Calculate stride of source
+            int stride = (source.PixelWidth * source.Format.BitsPerPixel + 7) / 8;
+
+            // Create data array to hold source pixel data
+            int length = stride * source.PixelHeight;
+            byte[] data = new byte[length];
+
+            // Copy source image pixels to the data array
+            source.CopyPixels(data, stride, 0);
+
+            // Change this loop for other formats
+            for (int i = 0; i < length; i += 4)
+            {
+                data[i] = (byte)(255 - data[i]);         //R
+                data[i + 1] = (byte)(255 - data[i + 1]); //G
+                data[i + 2] = (byte)(255 - data[i + 2]); //B
+                //data[i + 3] = (byte)(255 - data[i + 3]); //A
+            }
+
+            // Create a new BitmapSource from the inverted pixel buffer
+            return BitmapSource.Create(
+                source.PixelWidth, source.PixelHeight,
+                source.DpiX, source.DpiY, source.Format,
+                null, data, stride);
         }
     }
 }
