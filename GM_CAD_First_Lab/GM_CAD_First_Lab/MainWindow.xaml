@@ -72,7 +72,7 @@
                     Header="Save As..."/>
             </MenuItem>
             <MenuItem Header="Edit">
-                <MenuItem Header="Ivert Colors"
+                <MenuItem Header="Invert Colors"
                           x:Name="InvertColorMenuItem"
                           Click="InvertColorMenuItem_OnClick"/>
                 <MenuItem Header="Sharpness"
