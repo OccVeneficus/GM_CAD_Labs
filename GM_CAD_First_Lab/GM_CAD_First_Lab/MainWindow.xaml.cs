@@ -174,5 +174,10 @@ namespace GM_CAD_First_Lab
                 }
             }
         }
+
+        private void InvertColorMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

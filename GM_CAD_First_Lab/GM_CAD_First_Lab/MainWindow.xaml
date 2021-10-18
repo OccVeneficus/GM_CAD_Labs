@@ -71,6 +71,11 @@
                     Click="SaveMenuItem_Click"
                     Header="Save As..."/>
             </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Ivert Colors"
+                          x:Name="InvertColorMenuItem"
+                          Click="InvertColorMenuItem_OnClick"/>
+            </MenuItem>
         </Menu>
         <StackPanel
             Grid.Row="1"
